@@ -33,7 +33,9 @@
     "ts-node": "^8.1.0",
     "typescript": "^3.3.4000"
   },
-  "bin": "build/index.js",
+  "bin": {
+    "webserver": "build/index.js"
+  },
   "pkg": {
     "assets": [
       "public/**/*"
@@ -41,5 +43,12 @@
     "targets": [
       "node10"
     ]
-  }
+  },
+  "description": "### Web アプリケーションの実行",
+  "main": ".eslintrc.js",
+  "directories": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC"
 }

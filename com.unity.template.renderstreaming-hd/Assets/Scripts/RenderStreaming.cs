@@ -49,6 +49,10 @@ namespace Unity.RenderStreaming
 
         [SerializeField, Tooltip("Array to set your own click event")]
         private ButtonClickElement[] arrayButtonClickEvent;
+
+        [SerializeField]
+        private readonly List<bool> m_isVideoStreamTrackFree = new List<bool>();
+
 #pragma warning restore 0649
 
         private ISignaling m_signaling;
@@ -58,6 +62,7 @@ namespace Unity.RenderStreaming
         private readonly Dictionary<RTCDataChannel, RemoteInput> m_mapChannelAndRemoteInput = new Dictionary<RTCDataChannel, RemoteInput>();
         private readonly List<SimpleCameraController> m_listController = new List<SimpleCameraController>();
         private readonly List<VideoStreamTrack> m_listVideoStreamTrack = new List<VideoStreamTrack>();
+
         private readonly Dictionary<MediaStreamTrack, List<RTCRtpSender>> m_mapTrackAndSenderList = new Dictionary<MediaStreamTrack, List<RTCRtpSender>>();
         private MediaStream m_audioStream;
         private DefaultInput m_defaultInput;
@@ -125,6 +130,7 @@ namespace Unity.RenderStreaming
         public void AddVideoStreamTrack(VideoStreamTrack track)
         {
             m_listVideoStreamTrack.Add(track);
+            m_isVideoStreamTrackFree.Add(true);
         }
 
         public void RemoveVideoStreamTrack(VideoStreamTrack track)
@@ -184,7 +190,15 @@ namespace Unity.RenderStreaming
             });
 
             pc.SetRemoteDescription(ref _desc);
-            foreach (var track in m_listVideoStreamTrack.Concat(m_audioStream.GetTracks()))
+
+            int i;
+            for (i = 0; i < m_listVideoStreamTrack.Count && !m_isVideoStreamTrackFree[i]; i++);
+
+            print("TRACK COUNT = " + m_listVideoStreamTrack.Count + " BOOL COUNT = " + m_isVideoStreamTrackFree.Count);
+            print("INDEX OF FREE TRACK IS " + i);
+
+            var track = m_listVideoStreamTrack[i];
+            if (track != null && i < m_isVideoStreamTrackFree.Count)
             {
                 RTCRtpSender sender = pc.AddTrack(track);
                 if (!m_mapTrackAndSenderList.TryGetValue(track, out List<RTCRtpSender> list))
@@ -194,6 +208,17 @@ namespace Unity.RenderStreaming
                 }
                 list.Add(sender);
             }
+
+            //foreach (var track in m_listVideoStreamTrack.Concat(m_audioStream.GetTracks()))
+            //{
+            //    RTCRtpSender sender = pc.AddTrack(track);
+            //    if (!m_mapTrackAndSenderList.TryGetValue(track, out List<RTCRtpSender> list))
+            //    {
+            //        list = new List<RTCRtpSender>();
+            //        m_mapTrackAndSenderList.Add(track, list);
+            //    }
+            //    list.Add(sender);
+            //}
 
             RTCAnswerOptions options = default;
             var op = pc.CreateAnswer(ref options);
@@ -271,6 +296,7 @@ namespace Unity.RenderStreaming
                 byte index = (byte)m_listController.IndexOf(controller);
                 byte[] bytes = {(byte)UnityEventType.SwitchVideo, index};
                 channel.Send(bytes);
+                m_isVideoStreamTrackFree[(int) index] = false;
             }
         }
 

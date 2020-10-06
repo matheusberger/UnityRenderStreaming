@@ -194,12 +194,12 @@ namespace Unity.RenderStreaming
             int i;
             for (i = 0; i < m_listVideoStreamTrack.Count && !m_isVideoStreamTrackFree[i]; i++);
 
-            print("TRACK COUNT = " + m_listVideoStreamTrack.Count + " BOOL COUNT = " + m_isVideoStreamTrackFree.Count);
-            print("INDEX OF FREE TRACK IS " + i);
-
             var track = m_listVideoStreamTrack[i];
             if (track != null && i < m_isVideoStreamTrackFree.Count)
             {
+                print("TRACK COUNT = " + m_listVideoStreamTrack.Count + " BOOL COUNT = " + m_isVideoStreamTrackFree.Count);
+                print("INDEX OF FREE TRACK IS " + i);
+
                 RTCRtpSender sender = pc.AddTrack(track);
                 if (!m_mapTrackAndSenderList.TryGetValue(track, out List<RTCRtpSender> list))
                 {
@@ -208,17 +208,6 @@ namespace Unity.RenderStreaming
                 }
                 list.Add(sender);
             }
-
-            //foreach (var track in m_listVideoStreamTrack.Concat(m_audioStream.GetTracks()))
-            //{
-            //    RTCRtpSender sender = pc.AddTrack(track);
-            //    if (!m_mapTrackAndSenderList.TryGetValue(track, out List<RTCRtpSender> list))
-            //    {
-            //        list = new List<RTCRtpSender>();
-            //        m_mapTrackAndSenderList.Add(track, list);
-            //    }
-            //    list.Add(sender);
-            //}
 
             RTCAnswerOptions options = default;
             var op = pc.CreateAnswer(ref options);

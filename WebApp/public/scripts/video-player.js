@@ -92,6 +92,7 @@ export class VideoPlayer {
       if(e.track.kind == 'video') {
         _this.videoTrackList.push(e.track);
         _this.switchVideo(0)
+        console.log("RECEIVED VIDEO TRACK");
       }
       if(e.track.kind == 'audio') {
         _this.localStream.addTrack(e.track);

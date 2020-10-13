@@ -209,6 +209,12 @@ namespace Unity.RenderStreaming
                 list.Add(sender);
             }
 
+            foreach (var audioTrack in m_audioStream.GetTracks())
+            {
+                print("ADDING AUDIO TRACK");
+                pc.AddTrack(audioTrack);
+            }
+
             RTCAnswerOptions options = default;
             var op = pc.CreateAnswer(ref options);
             while (op.MoveNext())
